@@ -22,7 +22,7 @@ build:
   # commands run after the environment is setup
   run:
     - "pip3 cache purge"
-    # - "python3 download_models.py"  # Commented out for now
+    - "python3 download_models.py"  # Commented out for now
 
 
 # predict.py defines how predictions are run on your model
