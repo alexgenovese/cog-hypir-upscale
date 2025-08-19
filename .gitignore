@@ -19,7 +19,7 @@ cache/
 models/
 
 # HYPIR repository (downloaded during build)
-HYPIR/
+# HYPIR/
 
 # Temporary files
 *.tmp

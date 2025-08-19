@@ -1,0 +1,44 @@
+# Cog ignore file per ottimizzare il build Docker
+# Include HYPIR/ con le nostre modifiche per il fix PyTorch Dynamo
+
+# Test files (non necessari in produzione)
+test_*.py
+*_test.py
+
+# Development files
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+.coverage
+
+# Git
+.git/
+.gitignore
+
+# Development tools
+.vscode/
+.idea/
+
+# Documentation (opzionale - puoi rimuovere queste righe se vuoi includere i docs)
+# README.md
+# *.md
+
+# Cache directories
+cache/
+.cog/
+
+# Temporary files
+*.tmp
+*.log
+*.bak
+
+# macOS
+.DS_Store
+
+# Non includere i file di test delle immagini (opzionale)
+# test_input.jpg
+
+# IMPORTANTE: NON escludere HYPIR/ - contiene le nostre modifiche per Dynamo!
+# IMPORTANTE: NON escludere dynamo_patches.py - necessario per il fix!

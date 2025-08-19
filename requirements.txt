@@ -1,19 +1,22 @@
 # Core dependencies for HYPIR - Updated versions
-torch==2.1.2
-torchvision==0.16.2
-torchaudio==2.1.2
-diffusers==0.25.1
-transformers==4.37.2
-accelerate==0.26.1
-Pillow==10.2.0
-numpy==1.26.3
-opencv-python==4.9.0.80
-omegaconf==2.3.0
-safetensors==0.4.2
-scipy==1.12.0
-huggingface-hub==0.20.3
-xformers==0.0.23.post1
-opencv-python-headless==4.9.0.80
+torch>=2.1.2
+torchvision>=0.16.2
+torchaudio>=2.1.2
+diffusers>=0.25.1
+transformers>=4.37.2
+accelerate>=0.26.1
+Pillow>=10.2.0
+numpy>=1.26.3
+opencv-python>=4.9.0.80
+omegaconf>=2.3.0
+safetensors>=0.4.2
+scipy>=1.12.0
+huggingface-hub>=0.20.3
+xformers>=0.0.23.post1
+opencv-python-headless>=4.9.0.80
+peft>=0.8.2
+einops>=0.7.0
+timm>=0.9.16
 
 # Optional but recommended
-gradio==3.50.2
+gradio>=3.50.2

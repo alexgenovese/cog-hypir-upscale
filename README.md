@@ -1,37 +1,27 @@
 # HYPIR for Replicate.com
 
-![HYPIR](https://github.com/XPixelGroup/HYPIR/blob/main/assets/logo.png?raw=true)
+<img src="https://github.com/XPixelGroup/HYPIR/blob/main/assets/logo.png?raw=true" alt="HYPIR" width="220" />
 
-## Brutal Truth Upfront 💀
+**DOES IT WORK?** Yes, with a bit of luck and a decent GPU.
 
-Questo è **HYPIR** (Harnessing Diffusion-Yielded Score Priors for Image Restoration) pacchettizzato per Replicate usando COG.
+**IS IT STABLE?** As stable as any project that depends on ~47 different Python libraries.
 
-**FUNZIONA?** Sì, se hai un po' di fortuna e una GPU decente.
+**IS IT FAST?** Faster than traditional diffusion models, but still requires a GPU.
 
-**È STABILE?** Tanto quanto qualsiasi altro progetto che dipende da 47 diverse librerie Python.
-
-**È VELOCE?** Più veloce dei diffusion model tradizionali, ma comunque richiede GPU.
-
-**FALLIRÀ?** Probabilmente sì se:
-- La tua immagine è troppo grande (>4MP output)
-- La GPU esaurisce la memoria
-- I modelli Hugging Face sono temporaneamente offline
-- L'allineamento delle stelle non è favorevole
+**WILL IT FAIL?** Probably, if:
+- Your image is too large (>4MP output)
+- The GPU runs out of memory
+- Hugging Face models are temporarily offline
+- The stars aren't aligned
 
 ## What is HYPIR?
 
-HYPIR è un modello di image restoration che:
+HYPIR is an image restoration model that:
 
-1. **Non usa iterative diffusion sampling** - un solo forward pass
-2. **È basato su Stable Diffusion 2.1** - ma fine-tuned con adversarial training
-3. **Supporta text-guided restoration** - puoi descrivere cosa vuoi
-4. **Fa upscaling e restoration insieme** - kill two birds with one stone
-
-### Paper & Original Code
-
-- **Paper**: [HYPIR: Harnessing Diffusion-Yielded Score Priors for Image Restoration](https://arxiv.org/abs/2507.20590)
-- **Original Code**: [XPixelGroup/HYPIR](https://github.com/XPixelGroup/HYPIR)
-- **Authors**: Xinqi Lin et al.
+1. **Does not use iterative diffusion sampling** — a single forward pass
+2. **Is based on Stable Diffusion 2.1** — fine-tuned with adversarial training
+3. **Supports text-guided restoration** — you can describe what you want
+4. **Performs upscaling and restoration together** — two tasks in one
 
 ## How to Use This COG Project
 
@@ -67,109 +57,90 @@ cog push r8.im/youruser/hypir
 
 | Parameter | Type | Default | Description | Brutal Truth |
 |-----------|------|---------|-------------|--------------|
-| `image` | Image | - | Input image to restore | REQUIRED. Se è corrotta, fallisce |
-| `prompt` | String | "high quality, sharp, detailed" | Text guidance | Vuoto = default. Prompt assurdi = risultati assurdi |
-| `upscale_factor` | Float | 1.0 | Scaling factor (1.0-4.0) | >4.0 = OOM garantito |
-| `seed` | Integer | -1 | Random seed (-1 = random) | Per risultati riproducibili |
+| `image` | Image | - | Input image to restore | REQUIRED. If the file is corrupted the run will fail |
+| `prompt` | String | "high quality, sharp, detailed" | Text guidance | Empty = default. Nonsensical prompts = poor results |
+| `upscale_factor` | Float | 1.0 | Scaling factor (1.0-4.0) | Values >4.0 may cause out-of-memory errors |
+| `seed` | Integer | -1 | Random seed (-1 = random) | Set for reproducible results |
 
-## What Works
 
-✅ **Image restoration** - Funziona bene su foto degradate  
-✅ **Upscaling** - Fino a 4x con risultati decenti  
-✅ **Text guidance** - "sharp details", "vintage photo", etc.  
-✅ **Single forward pass** - Veloce (per gli standard diffusion)  
-✅ **GPU acceleration** - CUDA required but works  
 
-## What Doesn't Work (Or Might Not)
+## Quick Notes about MacOS env
+On macOS, building `xformers` required installing Homebrew build tools and temporarily using Homebrew's clang and OpenMP headers/libraries (see the Important macOS note below).
 
-❌ **CPU inference** - Tecnicamente possibile, praticamente inutilizzabile  
-❌ **Massive images** - >2048x2048 output = probably OOM  
-❌ **Miracle restoration** - Non fa magie, solo enhancement  
-❌ **Real-time** - 5-30 secondi per immagine  
-❌ **Perfect prompts** - Garbage in, garbage out  
+During local setup on macOS, `xformers` failed to compile with the system clang because OpenMP flags were unsupported. To fix this I installed a few Homebrew packages and used Homebrew's clang for the build. This is an ad-hoc, macOS-only workaround — it is not required on Linux machines or environments where `xformers` wheels are available.
 
-## Technical Details (For Nerds)
+If you need the same workaround, the steps used were:
 
-- **Base Model**: Stable Diffusion 2.1 (stabilityai/stable-diffusion-2-1-base)
-- **Fine-tuning**: LoRA adapters on attention + conv layers  
-- **Training**: Adversarial training initialized from SD weights
-- **Memory**: ~8GB VRAM per 2K image
-- **Speed**: ~10-30s per image (GPU dependent)
+1. Install Homebrew packages (one-time):
 
-## File Structure
-
-```
-.
-├── cog.yaml              # COG configuration 
-├── predict.py            # Main predictor class
-├── download_models.py    # Model download script
-├── README.md            # This file
-└── HYPIR/               # (Downloaded during build)
-    ├── HYPIR/
-    │   ├── enhancer/
-    │   │   └── sd2.py   # Main HYPIR class
-    │   └── ...
-    └── requirements.txt
+```bash
+brew install ninja libomp cmake llvm
 ```
 
-## Dependencies Hell 🔥
+2. In the same shell where you activate the venv, export the compiler and flags before running pip install:
 
-Questo progetto dipende da:
-- PyTorch (ovviamente)
-- Diffusers (per Stable Diffusion)
-- Transformers (per CLIP)
-- Accelerate (per mixed precision)
-- XFormers (per memory efficiency)  
-- ~47 altre librerie
+```bash
+cd /path/to/cog-hypir-upscale
+source .venv/bin/activate
+export PATH="/opt/homebrew/opt/llvm/bin:$PATH"
+export LDFLAGS="-L/opt/homebrew/opt/libomp/lib -L/opt/homebrew/opt/llvm/lib"
+export CPPFLAGS="-I/opt/homebrew/opt/libomp/include -I/opt/homebrew/opt/llvm/include"
+export CC=/opt/homebrew/opt/llvm/bin/clang
+export CXX=/opt/homebrew/opt/llvm/bin/clang++
+pip install -r requirements.txt
+```
 
-**Compatibility Matrix** (nel senso che spesso NON sono compatibili):
-- Python 3.10 (required)
-- CUDA 11.8+ (preferably)
-- PyTorch 2.0+ (tested with 2.0.1)
-- Modern GPU with 8GB+ VRAM
+Note: you can add those exports to your `~/.zshrc` if you want them permanently available on that machine, but doing so may affect other builds. This change is macOS-specific and was applied only to enable building `xformers` locally.
 
-## Common Failures & Solutions
+## Quick setup (recommended)
 
-### "CUDA out of memory"
-**Solution**: Riduci `upscale_factor` o usa immagini più piccole
+1. Create and activate a virtual environment in the project root:
 
-### "Model download failed"  
-**Solution**: Controlla connessione internet, retry, bestemmiare
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install --upgrade pip setuptools wheel
+```
 
-### "Import error: SD2Enhancer"
-**Solution**: Il download del repo HYPIR è fallito durante build
+2. Install Python dependencies into the activated venv:
 
-### "Output is garbage"
-**Solution**: Prompt migliore, seed diverso, accettare la realtà
+```bash
+pip install -r requirements.txt
+```
 
-## Performance Expectations
+## Limitations
 
-| Input Size | Upscale | Output Size | Time (A100) | VRAM |
-|------------|---------|-------------|-------------|------|
-| 512x512 | 1x | 512x512 | ~5s | 4GB |
-| 512x512 | 2x | 1024x1024 | ~10s | 6GB |
-| 1024x1024 | 1x | 1024x1024 | ~8s | 6GB |
-| 1024x1024 | 2x | 2048x2048 | ~25s | 12GB |
+- CPU inference is technically possible but very slow in practice
+- Very large outputs (e.g. >2048×2048) can cause out-of-memory errors
+- This is not a miracle-restorer — results depend on input quality and prompt
 
-*Tempi approssimativi, YMMV*
+## File structure (high level)
 
-## License & Credits
+```
+.  # project root
+├── cog.yaml
+├── predict.py
+├── download_models.py
+├── requirements.txt
+├── README.md
+└── (other scripts and downloaded HYPIR files after build)
+```
 
-- **HYPIR**: Original authors (XPixelGroup)  
-- **Stable Diffusion**: Stability AI, RunwayML  
-- **COG**: Replicate  
-- **This Package**: MIT License (il codice wrapper, non i modelli)
+## Troubleshooting / common failures
 
-## Disclaimer
+- "CUDA out of memory": lower `upscale_factor` or use a smaller image
+- "Model download failed": check network and retry the build
+- Build errors for `xformers` on macOS: see the Important macOS-only note above
 
-Questo è un wrapper non ufficiale. Se si rompe:
-1. Non è colpa nostra
-2. Controlla prima il repository originale  
-3. Stack Overflow è tuo amico
-4. L'ira funicular discende
+## Credits & license
 
----
+- Original HYPIR paper and code: XPixelGroup / Xinqi Lin et al.
+- Stable Diffusion: Stability AI, RunwayML
+- This wrapper: MIT License (wrapper code only; models have their own licenses)
 
-**Made with 💀 and brutal honesty**
+### Paper & Original Code
 
-*"It works on my machine" - Famous last words*
+- **Paper**: [HYPIR: Harnessing Diffusion-Yielded Score Priors for Image Restoration](https://arxiv.org/abs/2507.20590)
+- **Original Code**: [XPixelGroup/HYPIR](https://github.com/XPixelGroup/HYPIR)
+- **Authors**: Xinqi Lin et al.
+
