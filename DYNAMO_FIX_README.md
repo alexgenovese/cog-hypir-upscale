@@ -1,25 +1,25 @@
-# Fix per PyTorch Dynamo Error in HYPIR
+# Fix for PyTorch Dynamo Error in HYPIR
 
-## Problema
-L'errore originale era:
+## Problem
+The original error was:
 ```
 torch._dynamo.exc.Unsupported: Failed to trace builtin operator `print` with argument types ['<unknown type>']
 ```
 
-Questo si verificava perché PyTorch Dynamo non riusciva a tracciare le chiamate `print` nel modulo Tiled VAE quando usato con `torch.compile`.
+This occurred because PyTorch Dynamo was unable to trace `print` calls inside the Tiled VAE module when used together with `torch.compile`.
 
-## Soluzioni Implementate
+## Implemented Solutions
 
-### 1. Configurazione PyTorch Dynamo (predict.py)
+### 1. PyTorch Dynamo Configuration (predict.py)
 ```python
-# Fix per PyTorch Dynamo e print statements
+# Fix for PyTorch Dynamo and print statements
 import torch._dynamo.config
 torch._dynamo.config.reorderable_logging_functions.add(print)
 torch._dynamo.config.suppress_errors = True
 ```
 
 ### 2. Safe Print Functions (vaehook.py)
-Sostituite le chiamate `print` problematiche con `safe_print`:
+Problematic `print` calls were replaced with `safe_print`:
 ```python
 def safe_print(*args, **kwargs):
     """Safe print function that works with torch.compile and Dynamo"""
@@ -33,49 +33,49 @@ def safe_print(*args, **kwargs):
             pass  # Silently ignore if print also fails
 ```
 
-### 3. Compilation Settings Modificate
-- `fullgraph=False` invece di `True` per evitare problemi di tracciamento
-- `mode="reduce-overhead"` per VAE invece di `"max-autotune"`
-- Fallback automatico in caso di errori di compilation
+### 3. Modified Compilation Settings
+- `fullgraph=False` instead of `True` to avoid tracing issues
+- `mode="reduce-overhead"` for the VAE instead of `"max-autotune"`
+- Automatic fallback in case compilation errors occur
 
-## File Modificati
+## Files Modified
 
-1. **predict.py**: Aggiunta configurazione Dynamo e import patches
-2. **HYPIR/HYPIR/utils/tiled_vae/vaehook.py**: Sostituite chiamate print con safe_print
-3. **dynamo_patches.py**: Patches aggiuntivi per compatibilità
-4. **test_simple_dynamo.py**: Test per verificare il fix
+1. **predict.py**: Added Dynamo configuration and import patches
+2. **HYPIR/HYPIR/utils/tiled_vae/vaehook.py**: Replaced `print` calls with `safe_print`
+3. **dynamo_patches.py**: Additional compatibility patches
+4. **test_simple_dynamo.py**: Test to verify the fix
 
 ## Test
-Esegui il test per verificare che il fix funzioni:
+Run the test to verify the fix:
 ```bash
 python3 test_simple_dynamo.py
 ```
 
-Output atteso:
+Expected output:
 ```
 🎉 All Dynamo tests passed!
 The PyTorch Dynamo fix should resolve the original error.
 ```
 
-## Come Utilizzare
+## Usage
 
-Il fix è automaticamente attivo quando si importa il predictor. Non sono necessarie modifiche al codice utente.
+The fix is applied automatically when the predictor is imported. No changes are required in user code.
 
-Se si verificano ancora problemi, è possibile disabilitare `torch.compile` impostando il flag:
+If issues persist, you can disable `torch.compile` by setting the flag:
 ```python
 enable_optimizations = False
 ```
 
-## Compatibilità
+## Compatibility
 
 - ✅ PyTorch 2.0+
-- ✅ CUDA e CPU
-- ✅ torch.compile con e senza Dynamo
+- ✅ CUDA and CPU
+- ✅ torch.compile with and without Dynamo
 - ✅ Tiled VAE processing
 
-## Note
+## Notes
 
-1. Il fix mantiene tutte le ottimizzazioni di performance
-2. I log VAE continuano a funzionare normalmente  
-3. Fallback automatico se compilation fallisce
-4. Compatibile con ambienti Docker/Cog
+1. The fix preserves all performance optimizations
+2. VAE logs continue to work normally
+3. Automatic fallback if compilation fails
+4. Compatible with Docker/Cog environments

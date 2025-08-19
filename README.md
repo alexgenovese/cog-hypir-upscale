@@ -126,6 +126,57 @@ pip install -r requirements.txt
 └── (other scripts and downloaded HYPIR files after build)
 ```
 
+## Utility scripts & tests
+
+This repository includes a few helper scripts and lightweight tests to verify installation and runtime behavior. Below is a short guide explaining what each file does and how to run it.
+
+1) `create_test_image.py`
+- Purpose: generates a simple RGB test image (`test_input.jpg`) with gradients to use as input for quick experiments.
+- Usage: run it from the project root to create `test_input.jpg`.
+
+Example:
+```bash
+python3 create_test_image.py
+# -> Creates test_input.jpg in the current directory
+```
+
+2) `simple_test.py`
+- Purpose: quick smoke tests that verify the repository structure and that `predict.Predictor` can be imported and instantiated. Useful after cloning or before running a full COG build.
+- What it checks: required files (`cog.yaml`, `predict.py`, `requirements.txt`, `download_models.py`), presence of the `HYPIR/` directory, and existence of `setup()` and `predict()` methods on `predict.Predictor`.
+- Usage: run from the project root. It exits with code 0 on success, non-zero on failure.
+
+Example:
+```bash
+python3 simple_test.py
+```
+
+3) `test_dynamo_fix.py`
+- Purpose: verifies that the PyTorch Dynamo compatibility fixes are applied and that the tiled VAE hook (`HYPIR.utils.tiled_vae.vaehook`) can be imported and used under `torch.compile`.
+- What it checks: Dynamo configuration, importing `VAEHook`, and running a small compiled function that uses the repository's `safe_print` wrapper.
+- Usage: run from the project root with a Python environment that has PyTorch installed. This test is most useful on systems with CUDA, but also works on CPU.
+
+Example:
+```bash
+python3 test_dynamo_fix.py
+# Expected: detailed output for each sub-test; summary at the end
+```
+
+4) `test_simple_dynamo.py`
+- Purpose: a compact Dynamo test suite that runs three targeted checks: basic `torch.compile`, `torch.compile` with `print`, and a string-format `print` pattern similar to the one that caused the original Dynamo error.
+- Usage: run from the project root. Useful to quickly validate that Dynamo-related runtime configuration is correct on the current machine.
+
+Example:
+```bash
+python3 test_simple_dynamo.py
+# Expected: prints PyTorch version, Dynamo config state, and a pass/fail summary
+```
+
+Notes & tips
+- Ensure your Python environment is active (see Quick setup above) and that `requirements.txt` is installed before running tests.
+- Some tests require PyTorch 2.0+ and a working `torch.compile` implementation; results may differ between CPU and GPU environments.
+- If a test fails due to missing files, run `download_models.py` or follow the build steps before retrying.
+
+
 ## Troubleshooting / common failures
 
 - "CUDA out of memory": lower `upscale_factor` or use a smaller image
