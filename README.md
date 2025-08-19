@@ -31,11 +31,11 @@ HYPIR is an image restoration model that:
 cog build -t hypir
 ```
 
-**Aspettati**:
-- Download di ~8GB di modelli
-- 20-30 minuti di build time
-- Alcune deprecation warnings (ignora)
-- Preghiere agli dei della compatibilità Python
+**Expect**:
+- Download of ~8GB of models
+- 20-30 minutes of build time
+- Some deprecation warnings (ignore)
+- Prayers to the gods of Python compatibility
 
 ### 2. Test Locally
 
@@ -46,10 +46,10 @@ cog predict -i image=@input.jpg -i prompt="high quality photo" -i upscale_factor
 ### 3. Push to Replicate
 
 ```bash
-# Accedi prima
+# Login first
 cog login
 
-# Push (sostituisci con il tuo username)
+# Push (replace with your username)
 cog push r8.im/youruser/hypir
 ```
 
