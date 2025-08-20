@@ -1,0 +1,24 @@
+# Model Configuration for Enhanced HYPIR
+models:
+  hypir:
+    path: "models/HYPIR/"
+    enabled: true
+    weight: 0.4
+  realesrgan:
+    path: "models/RealESRGAN/RealESRGAN_x4plus.pth"
+    enabled: true
+    weight: 0.4
+  edsr:
+    path: "models/EDSR/"
+    enabled: false
+    weight: 0.2
+
+ensemble:
+  default_weights: [0.4, 0.4, 0.2]
+  post_processing: true
+  
+post_processing:
+  gradient_enhancement: true
+  multi_frequency_filter: true
+  adaptive_sharpening: true
+  noise_reduction: true
