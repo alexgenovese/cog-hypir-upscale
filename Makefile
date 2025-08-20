@@ -4,7 +4,7 @@
 
 # Configuration
 MODEL_NAME = hypir
-REGISTRY = r8.im/youruser/hypir
+REGISTRY = r8.im/alexgenovese/hypir-upscale
 TEST_IMAGE = test_input.jpg
 
 build:

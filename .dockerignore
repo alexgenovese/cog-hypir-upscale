@@ -1,0 +1,15 @@
+.git
+models/
+cache/
+__pycache__/
+*.pyc
+.*/*.pth
+# Allow Cog build artifacts to be included in push context
+# (Cog places generated files under .cog/tmp which must be sent when using `cog push`)
+# Removed explicit ignores for .cog/tmp and .cog/build so push can access generated artifacts
+.DS_Store
+.env
+.idea/
+.vscode/
+.venv/
+.venv/**

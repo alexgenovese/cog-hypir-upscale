@@ -5,25 +5,22 @@
 build:
   gpu: true
   cuda: "12.1"
-  system_packages:
-    - "libgl1-mesa-glx"
-    - "libglib2.0-0"
-    - "wget"
-    - "curl"
-    - "git"
+  # Keep python packages minimal here; torch is provided by the base image.
   python_version: "3.10"
   python_packages:
-    - "torch==2.1.0"
-    - "torchvision==0.16.0"
     - "transformers==4.35.0"
     - "diffusers==0.21.0"
     - "accelerate==0.24.0"
-    - "opencv-python==4.8.1.78"
+    - "opencv-python-headless==4.9.0.80"
     - "pillow==10.0.0"
     - "numpy==1.24.3"
     - "scipy==1.11.3"
     - "scikit-image==0.21.0"
     - "imageio==2.31.5"
-    # Note: Real-ESRGAN will be installed during setup() if needed
+    - "safetensors>=0.4.2"
+    - "wget"
+    - "einops>=0.7.0"
+    - "timm>=0.9.16"
+  # Real-ESRGAN will be installed during setup() if needed
 
 predict: "predict.py:EnhancedPredictor"

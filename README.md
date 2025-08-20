@@ -195,3 +195,36 @@ Notes & tips
 - **Original Code**: [XPixelGroup/HYPIR](https://github.com/XPixelGroup/HYPIR)
 - **Authors**: Xinqi Lin et al.
 
+
+## Docker build & run (recommended)
+
+This repo includes a multi-stage `Dockerfile` that builds wheels in a separate stage and installs from a local wheelhouse to speed pip installs.
+
+Build the image locally:
+
+```bash
+# Docker
+docker build -t hypir-enhanced .
+
+# Or with Cog (uses the local Dockerfile)
+cog build -t hypir-enhanced
+```
+
+Run the container (recommended: mount `models/` from the host to persist downloads and avoid re-downloading):
+
+```bash
+mkdir -p $(pwd)/models
+docker run --gpus all -it --rm \
+	-v "$(pwd)/models:/src/models" \
+	hypir-enhanced
+```
+
+Notes about the wheel cache and build:
+- The `wheel-builder` stage creates wheels for non-torch dependencies into `/wheels/wheelhouse` and the final stage installs from that local wheelhouse first.
+- The Dockerfile still relies on the official PyTorch CUDA runtime image so `torch`/`torchvision`/`torchaudio` are provided by the base image and not rebuilt in every image.
+- The build uses a pip cache mount; repeated builds will be much faster when the cache is available.
+
+If you don't mount `models/`, the container `entrypoint.sh` will call `download_models.py` at startup to populate `/src/models`.
+
+For CI or reproducible builds, consider exporting and importing BuildKit cache or hosting the wheelhouse as an artifact so installs are deterministic and faster.
+
